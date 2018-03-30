@@ -1,0 +1,8 @@
+.csv
+cryptoPrices/
+datasets/
+bitcoin_after/
+bitcoin_before/
+ethereum_after/
+ethereum_before/
+tweets_To_Analyze/
