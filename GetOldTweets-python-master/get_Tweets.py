@@ -4,8 +4,8 @@ import os, sys
 import datetime
 
 def main(argv):
-	KEYWORD = "ethereum"
-	FROM = "2017-11-15"
+	KEYWORD = "altcoins"
+	FROM = "2017-09-11"
 	TILL = "2018-03-20"
 	DAY_INTERVAL = 3
 

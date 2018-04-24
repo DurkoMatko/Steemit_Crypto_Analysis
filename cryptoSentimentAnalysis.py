@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as md
 import datetime as dt
 import pickle
+import collections
 from MilestoneClassifier.MulticlassMilestoneClassifier import MulticlassMilestoneClassifier, PredictionMode, TrainingMode
 
 reload(sys)
@@ -23,6 +24,7 @@ def main(argv):
     # Create a corpus from training data
     #corpus, labels = make_Corpus_From_Tweets(root_dir='datasets/Sentiment140')
     #corpus, labels = make_Corpus_From_Movies(root_dir='datasets/Movie_review_data')
+    corpus, labels = make_Corpus_From_Tweets(root_dir='datasets/Crypto_Labeled_Data')
 
     #find best performing vectorizer for feature extraction
     #tuneVectorizerParameters(corpus=corpus,labels=labels)
@@ -41,11 +43,11 @@ def main(argv):
     #model3 = create_Models(corpus=corpus,labels=labels,vectorizer=)
 
     f = open("trainedClassifier.pickle", 'rb')
-    myClassifier = pickle.load(f)
+    #myClassifier = pickle.load(f)
     f.close()
 
-    #myClassifier = MulticlassMilestoneClassifier()
-    #myClassifier.train(corpus=corpus,labels=labels,mode=TrainingMode.BINARY)
+    myClassifier = MulticlassMilestoneClassifier()
+    myClassifier.train(corpus=corpus,labels=labels,mode=TrainingMode.BINARY)
     #f = open("trainedClassifier.pickle", 'wb')
     #pickle.dump(myClassifier, f)
     #f.close()
@@ -58,19 +60,19 @@ def main(argv):
     tweetFilesPath = os.path.join(mypath, 'tweets_To_Analyze')
     tweetFiles = [f for f in os.listdir(tweetFilesPath) if os.path.isfile(os.path.join(tweetFilesPath, f))]
 
-    # analyze each tweets file
-    for file in tweetFiles:
-        with open(os.path.join(tweetFilesPath,file)) as csvFile:
-            reader = csv.reader(csvFile, delimiter=';')
-            reader.next()
-            print file
-            dates, scores, flooredDates, flooredScores = getDatesAndScores(reader=reader, classifier=myClassifier)
-            passedDays = convertDatesToPassedDays(dates)
-            plotPolynomials(minDate=min(dates), passedDays=passedDays, scores=scores, projectName=file,mypath=mypath)
-            flooredPassedDays = convertDatesToPassedDays(dates=flooredDates)
-            plotPolynomials(minDate=min(dates),passedDays=flooredPassedDays, scores=flooredScores, projectName=file,mypath=mypath)
 
-            csvFile.close()
+    projectName = "altcoins.csv"
+    with open(os.path.join(tweetFilesPath,projectName)) as csvFile:
+        reader = csv.reader(csvFile, delimiter=';')
+        reader.next()
+        print file
+        dates, scores, flooredDates, flooredScores = getDatesAndScores(reader=reader, classifier=myClassifier)
+        passedDays = convertDatesToPassedDays(dates)
+        plotPolynomials(minDate=min(dates), passedDays=passedDays, scores=scores, projectName=projectName,mypath=mypath)
+        flooredPassedDays = convertDatesToPassedDays(dates=flooredDates)
+        plotPolynomials(minDate=min(dates),passedDays=flooredPassedDays, scores=flooredScores, projectName=projectName,mypath=mypath)
+
+        csvFile.close()
 
 
 def make_Corpus_From_Tweets(root_dir):
@@ -81,7 +83,7 @@ def make_Corpus_From_Tweets(root_dir):
 
     corpus = []
     #initialization of numpy array needed (1,600,000 is size of my sentiment140 training dataset, 499 of test set)
-    labels = np.zeros(1600000);
+    labels = np.zeros(82);
     for file in trainDataFiles:
         with open(os.path.join(mypath, root_dir+'/') + file) as trainingFile:
             reader = csv.reader(trainingFile, delimiter=',')
@@ -400,6 +402,15 @@ def plotPolynomials(minDate,passedDays,scores,projectName,mypath):
     plt.title(projectName)
 
     plt.show()
+
+    # printing data for supervisor meeting and sheet creation
+    xy_dict = dict(zip(original_dates, y))
+    xy_dict_sorted = collections.OrderedDict(sorted(xy_dict.items()))
+    for key in xy_dict_sorted.keys():
+        print str(key)
+    for val in xy_dict_sorted.values():
+        print val
+
 
 def getCryptoPrices(projectName,cryptoPricesPath):
     with open(os.path.join(cryptoPricesPath, projectName)) as priceFile:
